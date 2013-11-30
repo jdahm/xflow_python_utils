@@ -31,7 +31,8 @@ def nelem_xfa_list(l):
     return [nelem_xfa(f) for f in l]
 
 def nnonzeros_xfa(xfafile):
-    return int(sp.check_output(["xf_nNonZeros", xfafile]))
+    out = sp.check_output(["xf_nNonZeros", xfafile])
+    return int(out.splitlines()[-1])
 
 def nnonzeros_xfa_list(l):
     return [nnonzeros_xfa(f) for f in l]
