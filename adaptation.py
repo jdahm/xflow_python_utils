@@ -1,10 +1,8 @@
 import re
 
 def adaptation_time(logfile):
+    time = []
     with open(logfile, mode="r") as f:
-        # begin array
-        time = []
-        iter = 0
         for l in f:
             # check for new adaptation iteration
             m_start = re.search(r"Starting adaptation iteration", l)
@@ -25,3 +23,13 @@ def adaptation_time(logfile):
                 time[-1]["ErrEst"] = float(m_errest.group('time'))
                 continue
     return time
+
+def adaptation_errest(logfile):
+    data = []
+    with open(logfile, mode="r") as f:
+        for l in f:
+            m = re.search(r"Output error estimate = (?P<errest>[^$]*)", l)
+            if m is not None:
+                data.append(float(m.group('errest')))
+    return data
+
