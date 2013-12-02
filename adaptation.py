@@ -1,6 +1,10 @@
 import re
 
 def adaptation_time(logfile):
+    time_points = (("Re-parallelization time = ", "ReParallelization"),
+        ("Steady solve CPU time = ", "Solve"),
+        ("Steady adjoint solve CPU time = ", "Adjoint"),
+        ("Error estimation and adaptation time = ", "ErrEst"))
     time = []
     with open(logfile, mode="r") as f:
         for l in f:
@@ -10,18 +14,10 @@ def adaptation_time(logfile):
                 # append a new dictionary
                 time.append({})
                 continue
-            m_reparallelization = re.search(r"Re-parallelization time = (?P<time>[^$]*)", l)
-            if m_reparallelization is not None:
-                time[-1]["Re-parallelization"] = float(m_reparallelization.group('time'))
-                continue
-            m_solve = re.search(r"Steady solve CPU time = (?P<time>[^$]*)", l)
-            if m_solve is not None:
-                time[-1]["Solve"] = float(m_solve.group('time'))
-                continue
-            m_errest = re.search(r"Error estimation and adaptation time = (?P<time>[^$]*)", l)
-            if m_errest is not None:
-                time[-1]["ErrEst"] = float(m_errest.group('time'))
-                continue
+            for p in time_points:
+                m = re.search("{}(?P<time>[^$]*)".format(p[0]), l)
+                if m is not None:
+                    time[-1][p[1]] = float(m.group('time'))
     return time
 
 def adaptation_errest(logfile):
