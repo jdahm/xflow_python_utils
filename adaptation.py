@@ -1,5 +1,14 @@
 import re
 
+def sequence_time(logfile):
+    time = []
+    with open(logfile, mode="r") as f:
+        for l in f:
+            m_solve = re.search(r"Steady solve CPU time = (?P<time>[^$]*)", l)
+            if m_solve is not None:
+                time.append(float(m_solve.group('time')))
+    return time
+
 def adaptation_time(logfile):
     time_points = (("Re-parallelization time = ", "ReParallelization"),
         ("Steady solve CPU time = ", "Solve"),
@@ -9,8 +18,8 @@ def adaptation_time(logfile):
     with open(logfile, mode="r") as f:
         for l in f:
             # check for new adaptation iteration
-            m_start = re.search(r"Starting adaptation iteration", l)
-            if m_start is not None:
+            m_start_adapt = re.search(r"Starting adaptation iteration", l)
+            if (m_start_adapt is not None):
                 # append a new dictionary
                 time.append({})
                 continue
