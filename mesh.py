@@ -27,12 +27,6 @@ def nelem_xfa(xfafile):
         elif found and skipped and egrp >= negrp: break
     return nelem
 
-def nelem_xfa_list(l):
-    return [nelem_xfa(f) for f in l]
-
-def nnonzeros_xfa(xfafile):
-    out = sp.check_output(["xf_nNonZeros", xfafile])
+def n0_xfa(xfafile):
+    out = sp.check_output(["xf_NonZeros", xfafile])
     return int(out.splitlines()[-1])
-
-def nnonzeros_xfa_list(l):
-    return [nnonzeros_xfa(f) for f in l]

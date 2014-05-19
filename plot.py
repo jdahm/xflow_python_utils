@@ -11,9 +11,9 @@ def plot_accuracy_order_triangle(a, xstart, ystart, rate, length=0.5, xoffset=0.
     """
     # Calculate x-position of triangle end
     if left:
-        xend = xstart * (10**(-1.0*length))
-    else:
         xend = xstart * (10**length)
+    else:
+        xend = xstart * (10**(-1.0*length))
     yend = 10**(log10(ystart) - rate*(log10(xstart) - log10(xend)))
     a.add_patch(Polygon([[xstart, ystart], [xend, ystart], [xend, yend]], closed=True, fill=False), **polykwargs)
     s = "{}".format(rate)
