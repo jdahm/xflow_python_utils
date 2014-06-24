@@ -4,7 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from .output import output_xfa
 from .mesh import nelem_xfa, n0_xfa
-from .adaptation import adaptation_errest, adaptation_time, sequence_time
+from .adaptation import adaptation_convergence_data, adaptation_time
+from .convergence import sequence_time
 
 def _create_time_array(timing_list):
     total_time = []
@@ -19,7 +20,7 @@ class output_convergence_plot:
 
     _xaxis_types = ['nelem', 'n0', 'h', 'time']
 
-    def __init__(self, xaxis='nelem', output_name=None, exact=0., dim=None, options={}):
+    def __init__(self, xaxis='nelem', output_name=None, exact=0., dim=None, eqnfile=None, options={}):
         if xaxis not in self._xaxis_types:
             raise ValueError("invalid xaxis type")
         if (xaxis == 'h') and (dim is None):
@@ -28,6 +29,7 @@ class output_convergence_plot:
         self.output_name = output_name
         self.exact = exact
         self.dim = dim
+        self.eqnfile = eqnfile
         self.options = options
 
         self.figure = plt.figure()
@@ -45,13 +47,12 @@ class output_convergence_plot:
 
         options.update(self.options)
 
-        y = np.array([(output_xfa(xfa, output_name) - exact) for xfa in xfa_list])
+        y = np.array([(output_xfa(xfa, output_name, eqnfile=self.eqnfile) - exact) for xfa in xfa_list])
 
         if correct_output:
             if logfile is None:
                 raise TypeError("must specify logfile for correcting output")
-
-            errest = np.array(adaptation_errest(logfile))
+            errest = np.array([x['ErrorEstimate'] for x in adaptation_convergence_data(logfile)[:-1]])
             y -= errest[:len(y)]
 
         if plot_abs:

@@ -1,14 +1,5 @@
 import re
 
-def sequence_time(logfile):
-    time = []
-    with open(logfile, mode="r") as f:
-        for l in f:
-            m_solve = re.search(r"Steady solve CPU time = (?P<time>[^$]*)", l)
-            if m_solve is not None:
-                time.append(float(m_solve.group('time')))
-    return time
-
 def adaptation_time(logfile):
     time_points = (("Re-parallelization time = ", "ReParallelization"),
         ("Steady solve CPU time = ", "Solve"),
@@ -19,7 +10,7 @@ def adaptation_time(logfile):
         for l in f:
             # check for new adaptation iteration
             m_start_adapt = re.search(r"Starting adaptation iteration", l)
-            if (m_start_adapt is not None):
+            if m_start_adapt is not None:
                 # append a new dictionary
                 time.append({})
                 continue
@@ -29,7 +20,7 @@ def adaptation_time(logfile):
                     time[-1][p[1]] = float(m.group('time'))
     return time
 
-def adaptation_errest(logfile):
+def _adaptation_errest(logfile):
     data = []
     with open(logfile, mode="r") as f:
         for l in f:
@@ -38,3 +29,18 @@ def adaptation_errest(logfile):
                 data.append(float(m.group('errest')))
     return data
 
+def adaptation_convergence_data(logfile):
+    errest_data = _adaptation_errest(logfile)
+    time_data = adaptation_time(logfile)
+
+    if len(errest_data) != len(time_data)-1:
+        raise ValueError()
+
+    data = []
+    for t in time_data:
+        data.append({'Time' : {k:v for (k,v) in t.items()}})
+        data[-1]['Time']['Total'] = sum(t[k] for k in t)
+    for i,e in enumerate(errest_data):
+        data[i]['ErrorEstimate'] = e
+
+    return data
